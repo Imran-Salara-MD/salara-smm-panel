@@ -1,0 +1,1 @@
+{"dependencies":{"express":"^4.19.2"},"description":"Salara SMM Panel — apni SMM services website","engines":{"node":">=22"},"main":"index.js","name":"salara-smm-panel","scripts":{"start":"node index.js"},"version":"1.0.0"}
