@@ -68,23 +68,23 @@ function setSetting(key, value) {
 const svcCount = db.prepare('SELECT COUNT(*) AS c FROM services').get().c;
 if (svcCount === 0) {
   const seed = [
-    ['TikTok', 'TikTok Followers | Real & Active', 850, 100, 500000, 'High quality followers, slow natural speed', ''],
-    ['TikTok', 'TikTok Likes | Instant', 450, 50, 200000, 'Post/video likes, fast start', ''],
-    ['TikTok', 'TikTok Views | Instant', 120, 500, 10000000, 'Video views, super fast', ''],
-    ['TikTok', 'TikTok Shares', 300, 100, 100000, 'Video shares', ''],
-    ['TikTok', 'TikTok Live Viewers | 30 Min', 1500, 50, 50000, 'Live stream par viewers 30 minute tak', ''],
-    ['TikTok', 'TikTok Live Viewers | 60 Min', 2500, 50, 50000, 'Live stream par viewers 60 minute tak', ''],
-    ['TikTok', 'TikTok Live Viewers | 120 Min', 4500, 50, 50000, 'Live stream par viewers 2 ghante tak', ''],
-    ['TikTok', 'TikTok Live Likes', 800, 100, 200000, 'Live stream par likes', ''],
-    ['YouTube', 'YouTube Subscribers | Non-Drop', 2500, 50, 100000, 'Slow natural growth, refill guarantee', ''],
-    ['YouTube', 'YouTube Views | Monetizable', 900, 500, 5000000, 'High retention views', ''],
-    ['YouTube', 'YouTube Likes', 600, 50, 200000, 'Video likes', ''],
-    ['YouTube', 'YouTube Watch Time (Hours)', 4500, 100, 4000, '4000 hours watch time package', ''],
-    ['Instagram', 'Instagram Followers | Real', 700, 100, 500000, 'Real looking followers', ''],
-    ['Instagram', 'Instagram Likes | Instant', 350, 50, 200000, 'Post likes, instant start', ''],
-    ['Instagram', 'Instagram Views (Reels)', 100, 500, 10000000, 'Reels/video views', ''],
-    ['Facebook', 'Facebook Page Likes + Follows', 800, 100, 200000, 'Page likes with follows', ''],
-    ['Facebook', 'Facebook Post Likes', 400, 50, 100000, 'Post/reaction likes', ''],
+    // [platform, name, rate_per_1000 (PKR retail), min, max, description, provider_service_id]
+    ['TikTok', 'TikTok Followers', 950, 50, 500000, 'Followers — steady delivery', '1357'],
+    ['TikTok', 'TikTok Likes | Instant', 450, 50, 200000, 'Post/video likes, fast start', '886'],
+    ['TikTok', 'TikTok Views | Instant', 100, 500, 10000000, 'Video views, super fast', '890'],
+    ['TikTok', 'TikTok Live Viewers | 15 Min', 650, 50, 10000, 'Live stream par viewers 15 minute tak', '905'],
+    ['TikTok', 'TikTok Live Viewers | 45 Min', 1400, 50, 10000, 'Live stream par viewers 45 minute tak', '907'],
+    ['TikTok', 'TikTok Live Viewers | 90 Min', 2800, 50, 10000, 'Live stream par viewers 90 minute tak', '909'],
+    ['TikTok', 'TikTok Live Viewers | 120 Min', 3700, 50, 10000, 'Live stream par viewers 2 ghante tak', '910'],
+    ['YouTube', 'YouTube Subscribers', 12000, 500, 100000, 'Channel subscribers, gradual delivery', '1122'],
+    ['YouTube', 'YouTube Views', 600, 10000, 10000000, 'Video views', '1118'],
+    ['YouTube', 'YouTube Likes', 1200, 50, 200000, 'Video/shorts likes', '1125'],
+    ['YouTube', 'YouTube Watch Time | 4000 Hours Pack', 5000, 4000, 4000, '4000 hours watch time — fixed package', '1123'],
+    ['Instagram', 'Instagram Followers', 1200, 50, 500000, 'Followers — steady delivery', '971'],
+    ['Instagram', 'Instagram Likes | Instant', 200, 50, 200000, 'Post likes, instant start', '951'],
+    ['Instagram', 'Instagram Reels Views', 80, 500, 10000000, 'Reels/video views', '920'],
+    ['Facebook', 'Facebook Page Likes + Follows', 600, 50, 200000, 'Page likes with follows', '1074'],
+    ['Facebook', 'Facebook Post Likes', 400, 50, 100000, 'Post/reaction likes', '1080'],
   ];
   const ins = db.prepare('INSERT INTO services (platform, name, rate_per_1000, min_qty, max_qty, description, provider_service_id) VALUES (?,?,?,?,?,?,?)');
   for (const s of seed) ins.run(...s);
