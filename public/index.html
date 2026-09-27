@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salara SMM Panel — TikTok Likes, Followers, YouTube Subscribers</title>
+<meta name="description" content="Salara SMM Panel — Pakistan ka apna SMM panel. TikTok likes/followers, YouTube subscribers/views, Instagram, Facebook services sab se sasti rates par.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">🟢 <b>Salara</b> SMM Panel</a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="nav-links">
+      <a href="#rates">Rate List</a>
+      <a href="#how">Kaam Kaise Karta Hai</a>
+      <a href="#payments">Payment</a>
+      <span id="nav-auth"></span>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Pakistan Ka Apna <span class="g">SMM Panel</span> 🚀</h1>
+    <p>TikTok likes &amp; followers, YouTube subscribers &amp; views, Instagram aur Facebook growth — sab se sasti rates, fori order, asaan JazzCash / Easypaisa payment.</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn" href="dashboard.html">🛒 Order Karein</a>
+      <a class="btn btn-outline" href="#rates">📋 Rate List Dekhein</a>
+    </div>
+    <div class="stats" id="hero-stats">
+      <div class="stat"><div class="n" id="st-services">—</div><div class="l">Services</div></div>
+      <div class="stat"><div class="n" id="st-platforms">—</div><div class="l">Platforms</div></div>
+      <div class="stat"><div class="n" id="st-rate">—</div><div class="l">Starting Rate / 1000</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="rates">
+  <div class="wrap">
+    <h2>📋 Rate List</h2>
+    <p class="sub">Rate per 1000 (PKR) — jitni quantity chahiye utna order karein.</p>
+    <div class="err" id="rate-err"></div>
+    <div class="toolbar">
+      <input class="search" id="rate-search" type="text" placeholder="🔍 Service talaash karein... (misal: tiktok like)">
+      <div class="chips" id="rate-chips"></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Service</th><th>Rate / 1000</th><th>Min</th><th>Max</th><th></th></tr>
+        </thead>
+        <tbody id="rate-body">
+          <tr><td colspan="5" class="empty">⏳ Services load ho rahi hain...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2>⚙️ Kaam Kaise Karta Hai</h2>
+    <p class="sub">Sirf 4 asaan steps mein apna order shuru karein.</p>
+    <div class="grid grid-4">
+      <div class="card step"><div class="n">1</div><div class="ic">📝</div><h4>Register Karein</h4><p>Apna naam, WhatsApp number aur password se free account banayein.</p></div>
+      <div class="card step"><div class="n">2</div><div class="ic">💰</div><h4>Funds Add Karein</h4><p>JazzCash / Easypaisa / Bank se payment bhejein aur transaction ID submit karein.</p></div>
+      <div class="card step"><div class="n">3</div><div class="ic">🛒</div><h4>Order Lagayein</h4><p>Service chunein, link aur quantity dalein — price fori nazar aayegi.</p></div>
+      <div class="card step"><div class="n">4</div><div class="ic">📊</div><h4>Track Karein</h4><p>Dashboard mein apne orders ka live status dekhein.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="payments">
+  <div class="wrap">
+    <h2>💳 Payment Methods</h2>
+    <p class="sub">In accounts par payment bhejein, phir Add Funds mein transaction ID submit karein.</p>
+    <div class="grid grid-3" id="pay-grid">
+      <div class="card"><p class="empty">⏳ Payment details load ho rahi hain...</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 <b style="color:var(--green)">Salara SMM Panel</b> — Owner: Imran Salara</div>
+    <div style="margin-top:6px">Sawal hai? WhatsApp par rabta karein:</div>
+    <a class="btn btn-sm wa-btn" id="wa-support" href="#" target="_blank" rel="noopener">💬 WhatsApp Support</a>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+var SERVICES = [];
+var activePlatform = 'All';
+var PLATFORMS = ['All', 'TikTok', 'YouTube', 'Instagram', 'Facebook'];
+
+function orderNow(id) {
+  if (getToken()) location.href = 'dashboard.html?service=' + encodeURIComponent(id);
+  else location.href = 'auth.html';
+}
+
+function renderChips() {
+  var box = document.getElementById('rate-chips');
+  box.innerHTML = '';
+  PLATFORMS.forEach(function (p) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (p === activePlatform ? ' active' : '');
+    b.textContent = p;
+    b.onclick = function () { activePlatform = p; renderChips(); renderTable(); };
+    box.appendChild(b);
+  });
+}
+
+function filteredServices() {
+  var q = document.getElementById('rate-search').value.trim().toLowerCase();
+  return SERVICES.filter(function (s) {
+    var okP = activePlatform === 'All' || String(s.platform || '').toLowerCase() === activePlatform.toLowerCase();
+    var okQ = !q || (String(s.name || '').toLowerCase().indexOf(q) !== -1);
+    return okP && okQ;
+  });
+}
+
+function renderTable() {
+  var tb = document.getElementById('rate-body');
+  var list = filteredServices();
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="5" class="empty">❌ Koi service nahi mili. Search ya filter change karein.</td></tr>';
+    return;
+  }
+  var html = '';
+  list.forEach(function (s) {
+    html += '<tr>'
+      + '<td><span class="plat">' + esc(s.platform || '') + '</span><b>' + esc(s.name) + '</b>'
+      + (s.description ? '<div style="color:var(--muted);font-size:.82rem">' + esc(s.description) + '</div>' : '')
+      + '</td>'
+      + '<td class="rate">' + fmt(s.rate_per_1000) + '</td>'
+      + '<td>' + esc(s.min_qty) + '</td>'
+      + '<td>' + esc(s.max_qty) + '</td>'
+      + '<td><button class="btn btn-sm" data-sid="' + esc(s.id) + '">Order</button></td>'
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+  tb.querySelectorAll('button[data-sid]').forEach(function (b) {
+    b.addEventListener('click', function () { orderNow(b.getAttribute('data-sid')); });
+  });
+}
+
+async function loadServices() {
+  try {
+    var d = await api('/api/services');
+    SERVICES = d.services || [];
+    document.getElementById('st-services').textContent = SERVICES.length + '+';
+    var plats = {};
+    var minRate = null;
+    SERVICES.forEach(function (s) {
+      if (s.platform) plats[String(s.platform).toLowerCase()] = 1;
+      var r = Number(s.rate_per_1000);
+      if (!isNaN(r) && (minRate === null || r < minRate)) minRate = r;
+    });
+    document.getElementById('st-platforms').textContent = Object.keys(plats).length;
+    document.getElementById('st-rate').textContent = minRate === null ? '—' : fmt(minRate);
+    renderTable();
+  } catch (e) {
+    setErr('rate-err', 'Rate list load nahi ho saki: ' + e.message);
+    document.getElementById('rate-body').innerHTML = '<tr><td colspan="5" class="empty">❌ Services load nahi ho sakin.</td></tr>';
+  }
+}
+
+async function loadPayments() {
+  try {
+    var d = await api('/api/settings/public');
+    var cards = [];
+    if (d.jazzcash_number) cards.push({ icon: '📱', t: 'JazzCash', num: d.jazzcash_number, nm: d.jazzcash_name || '' });
+    if (d.easypaisa_number) cards.push({ icon: '💸', t: 'Easypaisa', num: d.easypaisa_number, nm: d.easypaisa_name || '' });
+    if (d.bank_detail) cards.push({ icon: '🏦', t: 'Bank Transfer', num: d.bank_detail, nm: '' });
+    var grid = document.getElementById('pay-grid');
+    if (!cards.length) {
+      grid.innerHTML = '<div class="card"><p class="empty">Payment details jald add ki jayengi.</p></div>';
+    } else {
+      grid.innerHTML = cards.map(function (c, i) {
+        return '<div class="card pay-card"><div class="pay-icon">' + c.icon + '</div>'
+          + '<div class="grow"><div style="font-weight:800">' + esc(c.t) + '</div>'
+          + '<div class="num">' + esc(c.num) + '</div>'
+          + (c.nm ? '<div class="nm">' + esc(c.nm) + '</div>' : '')
+          + '</div><button class="btn btn-sm btn-outline" data-copy="' + i + '">Copy</button></div>';
+      }).join('');
+      grid.querySelectorAll('button[data-copy]').forEach(function (b) {
+        b.addEventListener('click', function () { copyText(cards[+b.getAttribute('data-copy')].num); });
+      });
+    }
+    if (d.support_whatsapp) {
+      document.getElementById('wa-support').href = 'https://wa.me/' + encodeURIComponent(String(d.support_whatsapp).replace(/\D/g, ''));
+    } else {
+      document.getElementById('wa-support').style.display = 'none';
+    }
+  } catch (e) {
+    document.getElementById('pay-grid').innerHTML = '<div class="card"><p class="empty">❌ Payment details load nahi ho sakin.</p></div>';
+  }
+}
+
+function renderNavAuth() {
+  var box = document.getElementById('nav-auth');
+  if (getToken()) {
+    box.innerHTML = '<a class="btn btn-sm" href="' + (isAdminFlag() ? 'admin.html' : 'dashboard.html') + '">📊 Dashboard</a> '
+      + '<a class="btn btn-sm btn-outline" href="#" id="nav-logout">Logout</a>';
+    document.getElementById('nav-logout').addEventListener('click', function (e) { e.preventDefault(); logout(); });
+  } else {
+    box.innerHTML = '<a href="auth.html">Login</a> <a class="btn btn-sm" href="auth.html">Register</a>';
+  }
+}
+
+document.getElementById('nav-toggle').addEventListener('click', function () {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+document.getElementById('rate-search').addEventListener('input', renderTable);
+
+renderNavAuth();
+renderChips();
+loadServices();
+loadPayments();
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login / Register — Salara SMM Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">🟢 <b>Salara</b> SMM Panel</a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html#rates">Rate List</a>
+      <a href="index.html">← Wapas</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="auth-box">
+    <div class="card">
+      <div class="auth-tabs">
+        <button id="tab-login" class="active">Login</button>
+        <button id="tab-register">Register</button>
+      </div>
+
+      <div class="err" id="auth-err"></div>
+      <div class="ok-msg" id="auth-ok"></div>
+
+      <!-- LOGIN -->
+      <form id="form-login">
+        <div class="field">
+          <label>WhatsApp Number</label>
+          <input type="tel" id="li-whatsapp" placeholder="03XXXXXXXXX" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="li-password" placeholder="Apna password" required>
+        </div>
+        <button class="btn" type="submit" id="li-btn" style="width:100%">🔑 Login</button>
+      </form>
+
+      <!-- REGISTER -->
+      <form id="form-register" style="display:none">
+        <div class="field">
+          <label>Apna Naam</label>
+          <input type="text" id="rg-name" placeholder="Misal: Imran Salara" required>
+        </div>
+        <div class="field">
+          <label>WhatsApp Number</label>
+          <input type="tel" id="rg-whatsapp" placeholder="03XXXXXXXXX" required>
+          <div class="hint">Isi number par order updates milengi.</div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="rg-password" placeholder="Kam az kam 4 harf" minlength="4" required>
+        </div>
+        <button class="btn" type="submit" id="rg-btn" style="width:100%">✅ Account Banayein</button>
+        <div class="hint" style="margin-top:10px; text-align:center">📌 Note: <b>Pehla account admin banta hai.</b></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+function switchTab(which) {
+  document.getElementById('tab-login').classList.toggle('active', which === 'login');
+  document.getElementById('tab-register').classList.toggle('active', which === 'register');
+  document.getElementById('form-login').style.display = which === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = which === 'register' ? 'block' : 'none';
+  setErr('auth-err', '');
+  var ok = document.getElementById('auth-ok'); ok.style.display = 'none';
+}
+document.getElementById('tab-login').addEventListener('click', function () { switchTab('login'); });
+document.getElementById('tab-register').addEventListener('click', function () { switchTab('register'); });
+document.getElementById('nav-toggle').addEventListener('click', function () {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+
+function afterAuth(d) {
+  setToken(d.token);
+  localStorage.setItem('smm_admin', d.isAdmin ? '1' : '0');
+  localStorage.setItem('smm_name', d.name || '');
+  location.href = d.isAdmin ? 'admin.html' : 'dashboard.html';
+}
+
+document.getElementById('form-login').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  setErr('auth-err', '');
+  var btn = document.getElementById('li-btn');
+  btn.disabled = true; btn.textContent = '⏳ Login ho raha hai...';
+  try {
+    var d = await api('/api/login', 'POST', {
+      whatsapp: document.getElementById('li-whatsapp').value.trim(),
+      password: document.getElementById('li-password').value
+    });
+    afterAuth(d);
+  } catch (err) {
+    setErr('auth-err', err.message);
+  }
+  btn.disabled = false; btn.textContent = '🔑 Login';
+});
+
+document.getElementById('form-register').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  setErr('auth-err', '');
+  var btn = document.getElementById('rg-btn');
+  btn.disabled = true; btn.textContent = '⏳ Account ban raha hai...';
+  try {
+    var d = await api('/api/register', 'POST', {
+      name: document.getElementById('rg-name').value.trim(),
+      whatsapp: document.getElementById('rg-whatsapp').value.trim(),
+      password: document.getElementById('rg-password').value
+    });
+    afterAuth(d);
+  } catch (err) {
+    setErr('auth-err', err.message);
+  }
+  btn.disabled = false; btn.textContent = '✅ Account Banayein';
+});
+
+// Already logged in? seedha dashboard
+if (getToken()) {
+  api('/api/me').then(function (d) {
+    if (d.ok && d.user) location.href = d.user.is_admin ? 'admin.html' : 'dashboard.html';
+  }).catch(function () { clearToken(); });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — Salara SMM Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">🟢 <b>Salara</b> SMM Panel</a>
+    <div class="topbar spacer" style="padding:0; margin-left:auto">
+      <span class="user-chip" id="u-name">…</span>
+      <span class="balance" id="u-balance">Rs 0.00</span>
+      <button class="btn btn-sm btn-outline" id="btn-logout">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap section" style="padding-top:24px">
+  <div class="tabs" id="dash-tabs">
+    <button class="tab active" data-tab="order">🛒 New Order</button>
+    <button class="tab" data-tab="orders">📦 My Orders</button>
+    <button class="tab" data-tab="funds">💰 Add Funds</button>
+    <button class="tab" data-tab="txns">🧾 Transactions</button>
+  </div>
+
+  <!-- NEW ORDER -->
+  <div class="tab-panel active" id="tab-order">
+    <div class="card">
+      <h3>🛒 Naya Order</h3>
+      <div class="err" id="order-err"></div>
+      <div class="ok-msg" id="order-ok"></div>
+      <div class="field">
+        <label>Service chunein</label>
+        <select id="od-service"><option value="">⏳ Services load ho rahi hain...</option></select>
+        <div class="hint" id="od-service-hint"></div>
+      </div>
+      <div class="field">
+        <label>Link</label>
+        <input type="url" id="od-link" placeholder="https://tiktok.com/... ya youtube.com/...">
+        <div class="hint">Us post / video / profile ka link jis par service chahiye.</div>
+      </div>
+      <div class="field">
+        <label>Quantity</label>
+        <input type="number" id="od-qty" placeholder="1000" min="1">
+        <div class="hint" id="od-qty-hint"></div>
+      </div>
+      <div class="price-box">
+        <span>Total Charge</span>
+        <span class="amt" id="od-price">Rs 0.00</span>
+      </div>
+      <button class="btn" id="od-btn" style="width:100%">✅ Order Lagayein</button>
+    </div>
+  </div>
+
+  <!-- MY ORDERS -->
+  <div class="tab-panel" id="tab-orders">
+    <div class="card">
+      <h3>📦 Mere Orders</h3>
+      <div class="err" id="orders-err"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Service</th><th>Link</th><th>Qty</th><th>Charge</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="orders-body"><tr><td colspan="7" class="empty">⏳ Orders load ho rahe hain...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD FUNDS -->
+  <div class="tab-panel" id="tab-funds">
+    <div class="card">
+      <h3>💰 Funds Add Karein</h3>
+      <p style="color:var(--muted); margin-bottom:14px">Step 1: Neeche diye gaye account par payment bhejein. Step 2: Transaction ID yahan submit karein — admin approve karega to balance add ho jayega.</p>
+      <div class="err" id="funds-err"></div>
+      <div class="grid grid-3" id="funds-pay"></div>
+    </div>
+    <div class="card">
+      <h3>🧾 Payment Submit Karein</h3>
+      <div class="ok-msg" id="dep-ok"></div>
+      <div class="field">
+        <label>Payment Method</label>
+        <select id="dep-method">
+          <option value="jazzcash">JazzCash</option>
+          <option value="easypaisa">Easypaisa</option>
+          <option value="bank">Bank Transfer</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Amount (PKR)</label>
+        <input type="number" id="dep-amount" placeholder="1000" min="1">
+      </div>
+      <div class="field">
+        <label>Transaction ID</label>
+        <input type="text" id="dep-txn" placeholder="JazzCash / Easypaisa / Bank ka transaction ID">
+      </div>
+      <button class="btn" id="dep-btn" style="width:100%">📤 Submit</button>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="tab-panel" id="tab-txns">
+    <div class="card">
+      <h3>🧾 Meri Transactions (Deposits)</h3>
+      <div class="err" id="txns-err"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Method</th><th>Amount</th><th>Transaction ID</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="txns-body"><tr><td colspan="6" class="empty">⏳ Load ho raha hai...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+var SERVICES = [];
+var USER = null;
+
+function currentService() {
+  var id = document.getElementById('od-service').value;
+  return SERVICES.find(function (s) { return String(s.id) === String(id); });
+}
+
+function updatePrice() {
+  var s = currentService();
+  var qty = parseInt(document.getElementById('od-qty').value, 10) || 0;
+  if (!s || qty <= 0) {
+    document.getElementById('od-price').textContent = 'Rs 0.00';
+    return;
+  }
+  var charge = (Number(s.rate_per_1000) / 1000) * qty;
+  document.getElementById('od-price').textContent = fmt(charge);
+  var hint = document.getElementById('od-qty-hint');
+  var bad = (s.min_qty && qty < s.min_qty) || (s.max_qty && qty > s.max_qty);
+  hint.textContent = bad ? ('⚠️ Quantity ' + s.min_qty + ' se ' + s.max_qty + ' ke darmiyan honi chahiye.') : '';
+  hint.style.color = bad ? 'var(--warn)' : 'var(--muted)';
+}
+
+function fillServiceSelect(preselectId) {
+  var sel = document.getElementById('od-service');
+  var groups = {};
+  SERVICES.forEach(function (s) {
+    var p = s.platform || 'Other';
+    (groups[p] = groups[p] || []).push(s);
+  });
+  var html = '<option value="">— Service chunein —</option>';
+  Object.keys(groups).sort().forEach(function (p) {
+    html += '<optgroup label="' + esc(p) + '">';
+    groups[p].forEach(function (s) {
+      html += '<option value="' + esc(s.id) + '">' + esc(s.name) + ' — ' + fmt(s.rate_per_1000) + '/1000</option>';
+    });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+  sel.onchange = function () {
+    var s = currentService();
+    document.getElementById('od-service-hint').textContent = s
+      ? ('Rate: ' + fmt(s.rate_per_1000) + ' / 1000 • Min: ' + s.min_qty + ' • Max: ' + s.max_qty)
+      : '';
+    updatePrice();
+  };
+  if (preselectId) {
+    sel.value = preselectId;
+    sel.onchange();
+  }
+}
+
+async function loadServices() {
+  try {
+    var d = await api('/api/services');
+    SERVICES = d.services || [];
+    var params = new URLSearchParams(location.search);
+    fillServiceSelect(params.get('service'));
+    setErr('order-err', '');
+  } catch (e) {
+    setErr('order-err', 'Services load nahi ho sakin: ' + e.message);
+  }
+}
+
+async function loadOrders() {
+  var tb = document.getElementById('orders-body');
+  try {
+    var d = await api('/api/orders');
+    var list = d.orders || [];
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">📭 Abhi tak koi order nahi. Pehla order lagayein! 🛒</td></tr>'; return; }
+    tb.innerHTML = list.map(function (o) {
+      return '<tr><td>#' + esc(o.id) + '</td>'
+        + '<td><span class="plat">' + esc(o.platform || '') + '</span>' + esc(o.service_name) + '</td>'
+        + '<td title="' + esc(o.link) + '">' + shortLink(o.link) + '</td>'
+        + '<td>' + esc(o.quantity) + '</td>'
+        + '<td class="rate">' + fmt(o.charge) + '</td>'
+        + '<td>' + statusBadge(o.status) + '</td>'
+        + '<td style="white-space:nowrap">' + fmtDate(o.created_at) + '</td></tr>';
+    }).join('');
+    setErr('orders-err', '');
+  } catch (e) {
+    setErr('orders-err', 'Orders load nahi ho sake: ' + e.message);
+    tb.innerHTML = '<tr><td colspan="7" class="empty">❌ Orders load nahi ho sake.</td></tr>';
+  }
+}
+
+async function loadFundsInfo() {
+  var box = document.getElementById('funds-pay');
+  try {
+    var d = await api('/api/settings/public');
+    var cards = [];
+    if (d.jazzcash_number) cards.push({ icon: '📱', t: 'JazzCash', num: d.jazzcash_number, nm: d.jazzcash_name || '' });
+    if (d.easypaisa_number) cards.push({ icon: '💸', t: 'Easypaisa', num: d.easypaisa_number, nm: d.easypaisa_name || '' });
+    if (d.bank_detail) cards.push({ icon: '🏦', t: 'Bank Transfer', num: d.bank_detail, nm: '' });
+    if (!cards.length) { box.innerHTML = '<div class="card"><p class="empty">Payment details jald add ki jayengi.</p></div>'; return; }
+    box.innerHTML = cards.map(function (c, i) {
+      return '<div class="card pay-card"><div class="pay-icon">' + c.icon + '</div>'
+        + '<div class="grow"><div style="font-weight:800">' + esc(c.t) + '</div>'
+        + '<div class="num">' + esc(c.num) + '</div>'
+        + (c.nm ? '<div class="nm">' + esc(c.nm) + '</div>' : '')
+        + '</div><button class="btn btn-sm btn-outline" data-copy="' + i + '">Copy</button></div>';
+    }).join('');
+    box.querySelectorAll('button[data-copy]').forEach(function (b) {
+      b.addEventListener('click', function () { copyText(cards[+b.getAttribute('data-copy')].num); });
+    });
+  } catch (e) {
+    box.innerHTML = '<div class="card"><p class="empty">❌ Payment details load nahi ho sakin.</p></div>';
+  }
+}
+
+async function loadTxns() {
+  var tb = document.getElementById('txns-body');
+  try {
+    var d = await api('/api/deposits');
+    var list = d.deposits || [];
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="6" class="empty">📭 Koi transaction nahi.</td></tr>'; return; }
+    tb.innerHTML = list.map(function (x) {
+      return '<tr><td>#' + esc(x.id) + '</td>'
+        + '<td style="text-transform:capitalize">' + esc(x.method) + '</td>'
+        + '<td class="rate">' + fmt(x.amount) + '</td>'
+        + '<td class="mono">' + esc(x.transaction_id) + '</td>'
+        + '<td>' + statusBadge(x.status) + '</td>'
+        + '<td style="white-space:nowrap">' + fmtDate(x.created_at) + '</td></tr>';
+    }).join('');
+    setErr('txns-err', '');
+  } catch (e) {
+    setErr('txns-err', 'Transactions load nahi ho sakin: ' + e.message);
+  }
+}
+
+async function refreshBalance() {
+  try {
+    var d = await api('/api/me');
+    if (d.ok && d.user) {
+      USER = d.user;
+      document.getElementById('u-balance').textContent = fmt(USER.balance);
+      document.getElementById('u-name').textContent = '👤 ' + USER.name;
+    }
+  } catch (e) { /* silent */ }
+}
+
+/* ---- events ---- */
+document.getElementById('od-qty').addEventListener('input', updatePrice);
+document.getElementById('btn-logout').addEventListener('click', logout);
+
+document.getElementById('od-btn').addEventListener('click', async function () {
+  setErr('order-err', '');
+  var ok = document.getElementById('order-ok'); ok.style.display = 'none';
+  var s = currentService();
+  var link = document.getElementById('od-link').value.trim();
+  var qty = parseInt(document.getElementById('od-qty').value, 10);
+  if (!s) { setErr('order-err', '❌ Pehle service chunein.'); return; }
+  if (!link) { setErr('order-err', '❌ Link dalein.'); return; }
+  if (!qty || qty <= 0) { setErr('order-err', '❌ Durust quantity dalein.'); return; }
+  if (s.min_qty && qty < s.min_qty) { setErr('order-err', '❌ Minimum quantity ' + s.min_qty + ' hai.'); return; }
+  if (s.max_qty && qty > s.max_qty) { setErr('order-err', '❌ Maximum quantity ' + s.max_qty + ' hai.'); return; }
+  var btn = this; btn.disabled = true; btn.textContent = '⏳ Order lag raha hai...';
+  try {
+    var d = await api('/api/order', 'POST', { service_id: s.id, link: link, quantity: qty });
+    ok.style.display = 'block';
+    ok.textContent = '✅ ' + (d.msg || 'Order lag gaya!') + ' (Charge: ' + fmt(d.charge) + ')';
+    document.getElementById('od-link').value = '';
+    document.getElementById('od-qty').value = '';
+    updatePrice();
+    await refreshBalance();
+    loadOrders();
+  } catch (e) {
+    setErr('order-err', e.message);
+  }
+  btn.disabled = false; btn.textContent = '✅ Order Lagayein';
+});
+
+document.getElementById('dep-btn').addEventListener('click', async function () {
+  setErr('funds-err', '');
+  var ok = document.getElementById('dep-ok'); ok.style.display = 'none';
+  var method = document.getElementById('dep-method').value;
+  var amount = parseFloat(document.getElementById('dep-amount').value);
+  var txn = document.getElementById('dep-txn').value.trim();
+  if (!amount || amount <= 0) { setErr('funds-err', '❌ Durust amount dalein.'); return; }
+  if (!txn) { setErr('funds-err', '❌ Transaction ID dalein.'); return; }
+  var btn = this; btn.disabled = true; btn.textContent = '⏳ Submit ho raha hai...';
+  try {
+    var d = await api('/api/deposit', 'POST', { method: method, amount: amount, transaction_id: txn });
+    ok.style.display = 'block';
+    ok.textContent = '✅ ' + (d.msg || 'Deposit submit ho gaya. Admin approve karega to balance add ho jayega.');
+    document.getElementById('dep-amount').value = '';
+    document.getElementById('dep-txn').value = '';
+    loadTxns();
+  } catch (e) {
+    setErr('funds-err', e.message);
+  }
+  btn.disabled = false; btn.textContent = '📤 Submit';
+});
+
+/* ---- init ---- */
+var switchTab = initTabs('#dash-tabs .tab', function (name) {
+  if (name === 'orders') loadOrders();
+  if (name === 'funds') loadFundsInfo();
+  if (name === 'txns') loadTxns();
+});
+
+(async function init() {
+  USER = await requireLogin(false);
+  if (!USER) return;
+  document.getElementById('u-name').textContent = '👤 ' + USER.name;
+  document.getElementById('u-balance').textContent = fmt(USER.balance);
+  var params = new URLSearchParams(location.search);
+  if (params.get('service')) switchTab('order');
+  loadServices();
+})();
+</script>
+</body>
+</html>

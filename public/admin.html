@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Panel — Salara SMM Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">🟢 <b>Salara</b> SMM Panel <span class="badge b-progress">ADMIN</span></a>
+    <div class="topbar spacer" style="padding:0; margin-left:auto">
+      <span class="user-chip" id="a-name">…</span>
+      <a class="btn btn-sm btn-outline" href="dashboard.html">User View</a>
+      <button class="btn btn-sm btn-outline" id="btn-logout">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap section" style="padding-top:24px">
+  <div class="tabs" id="admin-tabs">
+    <button class="tab active" data-tab="deposits">💰 Deposits</button>
+    <button class="tab" data-tab="orders">📦 Orders</button>
+    <button class="tab" data-tab="services">🛠️ Services</button>
+    <button class="tab" data-tab="settings">⚙️ Settings</button>
+    <button class="tab" data-tab="provider">🔌 Provider</button>
+  </div>
+
+  <!-- DEPOSITS -->
+  <div class="tab-panel active" id="tab-deposits">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:14px">
+        <h3>💰 Deposit Requests</h3>
+        <div class="chips" id="dep-chips"></div>
+      </div>
+      <div class="err" id="dep-err"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>User</th><th>WhatsApp</th><th>Method</th><th>Amount</th><th>Txn ID</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="dep-body"><tr><td colspan="9" class="empty">⏳ Load ho raha hai...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="tab-panel" id="tab-orders">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:14px">
+        <h3>📦 Sab Orders</h3>
+        <div class="chips" id="ord-chips"></div>
+      </div>
+      <div class="err" id="ord-err"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>User</th><th>Service</th><th>Link</th><th>Qty</th><th>Charge</th><th>Prov. ID</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="ord-body"><tr><td colspan="10" class="empty">⏳ Load ho raha hai...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="tab-panel" id="tab-services">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:14px">
+        <h3>🛠️ Services</h3>
+        <button class="btn btn-sm" id="svc-add">➕ Nayi Service</button>
+      </div>
+      <div class="err" id="svc-err"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Platform</th><th>Name</th><th>Rate/1000</th><th>Min</th><th>Max</th><th>Provider Svc ID</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="svc-body"><tr><td colspan="9" class="empty">⏳ Load ho raha hai...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="card">
+      <h3>⚙️ Panel Settings</h3>
+      <div class="err" id="set-err"></div>
+      <div class="ok-msg" id="set-ok"></div>
+      <div class="grid grid-2">
+        <div class="field"><label>Panel Name</label><input id="set-panel_name"></div>
+        <div class="field"><label>Currency</label><input id="set-currency"></div>
+        <div class="field"><label>JazzCash Number</label><input id="set-jazzcash_number"></div>
+        <div class="field"><label>JazzCash Account Name</label><input id="set-jazzcash_name"></div>
+        <div class="field"><label>Easypaisa Number</label><input id="set-easypaisa_number"></div>
+        <div class="field"><label>Easypaisa Account Name</label><input id="set-easypaisa_name"></div>
+        <div class="field"><label>Support WhatsApp Number</label><input id="set-support_whatsapp" placeholder="9230XXXXXXXX"></div>
+      </div>
+      <div class="field"><label>Bank Detail</label><textarea id="set-bank_detail" placeholder="Bank name, account title, IBAN..."></textarea></div>
+      <button class="btn" id="set-save">💾 Save Settings</button>
+    </div>
+    <div class="card">
+      <h3>🔗 Integrations Status</h3>
+      <div class="row-flex">
+        <span>SMM Provider:</span><span id="st-provider">—</span>
+        <span style="margin-left:16px">WhatsApp Notifications:</span><span id="st-whatsapp">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROVIDER -->
+  <div class="tab-panel" id="tab-provider">
+    <div class="card">
+      <h3>🔌 SMM Provider</h3>
+      <p style="color:var(--muted); margin-bottom:14px">Provider se services ki list mangwayein aur service IDs copy karke apni services mein lagayein.</p>
+      <div class="err" id="prov-err"></div>
+      <div class="ok-msg" id="prov-ok"></div>
+      <div class="btn-row">
+        <button class="btn" id="prov-sync">🔄 Provider se Services Sync Karein</button>
+        <button class="btn btn-outline" id="prov-balance">💰 Provider Balance Dekhein</button>
+      </div>
+      <div class="mt" id="prov-balance-box"></div>
+    </div>
+    <div class="card" id="prov-list-card" style="display:none">
+      <h3>📋 Provider Services <span class="badge b-progress" id="prov-count"></span></h3>
+      <div class="toolbar"><input class="search" id="prov-search" placeholder="🔍 Provider service talaash karein..."></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Service ID</th><th>Name</th><th>Rate</th><th>Min</th><th>Max</th><th></th></tr></thead>
+          <tbody id="prov-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE MODAL -->
+<div class="modal-overlay" id="svc-modal">
+  <div class="modal">
+    <h3 id="svc-modal-title">➕ Nayi Service</h3>
+    <div class="err" id="svc-form-err"></div>
+    <input type="hidden" id="svc-id">
+    <div class="grid grid-2">
+      <div class="field"><label>Platform</label>
+        <select id="svc-platform"><option>TikTok</option><option>YouTube</option><option>Instagram</option><option>Facebook</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Rate per 1000 (PKR)</label><input type="number" id="svc-rate" step="0.01" min="0"></div>
+    </div>
+    <div class="field"><label>Service Name</label><input id="svc-name" placeholder="TikTok Likes | Real | Fast"></div>
+    <div class="field"><label>Description</label><textarea id="svc-desc" placeholder="Service ki tafseel..."></textarea></div>
+    <div class="grid grid-2">
+      <div class="field"><label>Min Qty</label><input type="number" id="svc-min" min="1"></div>
+      <div class="field"><label>Max Qty</label><input type="number" id="svc-max" min="1"></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field"><label>Provider Service ID</label><input id="svc-provider-id" placeholder="Provider wali ID (optional)"></div>
+      <div class="field"><label>Active</label>
+        <select id="svc-active"><option value="1">✅ Active</option><option value="0">⛔ Inactive</option></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="svc-save">💾 Save</button>
+      <button class="btn btn-outline" id="svc-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+var ADMIN = null;
+var ALL_SERVICES = [];
+var PROV_SERVICES = [];
+var depFilter = 'pending';
+var ordFilter = 'all';
+var ORDER_STATUSES = ['pending', 'in_progress', 'completed', 'partial', 'cancelled'];
+
+/* ================= DEPOSITS ================= */
+function renderDepChips() {
+  var box = document.getElementById('dep-chips');
+  var opts = ['pending', 'approved', 'rejected', 'all'];
+  var labels = { pending: '⏳ Pending', approved: '✅ Approved', rejected: '❌ Rejected', all: 'Sab' };
+  box.innerHTML = '';
+  opts.forEach(function (o) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (o === depFilter ? ' active' : '');
+    b.textContent = labels[o];
+    b.onclick = function () { depFilter = o; renderDepChips(); loadDeposits(); };
+    box.appendChild(b);
+  });
+}
+
+async function loadDeposits() {
+  var tb = document.getElementById('dep-body');
+  tb.innerHTML = '<tr><td colspan="9" class="empty">⏳ Load ho raha hai...</td></tr>';
+  try {
+    var q = depFilter === 'all' ? '' : '?status=' + encodeURIComponent(depFilter);
+    var d = await api('/api/admin/deposits' + q);
+    var list = d.deposits || [];
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">📭 Koi deposit request nahi.</td></tr>'; return; }
+    tb.innerHTML = list.map(function (x) {
+      var actions = x.status === 'pending'
+        ? '<button class="btn btn-sm" data-act="approve" data-id="' + x.id + '">✅ Approve</button> '
+          + '<button class="btn btn-sm btn-danger" data-act="reject" data-id="' + x.id + '">❌ Reject</button>'
+        : '—';
+      return '<tr><td>#' + esc(x.id) + '</td>'
+        + '<td>' + esc(x.user_name) + '</td><td>' + esc(x.whatsapp) + '</td>'
+        + '<td style="text-transform:capitalize">' + esc(x.method) + '</td>'
+        + '<td class="rate">' + fmt(x.amount) + '</td>'
+        + '<td class="mono">' + esc(x.transaction_id) + '</td>'
+        + '<td style="white-space:nowrap">' + fmtDate(x.created_at) + '</td>'
+        + '<td>' + statusBadge(x.status) + '</td>'
+        + '<td style="white-space:nowrap">' + actions + '</td></tr>';
+    }).join('');
+    tb.querySelectorAll('button[data-act]').forEach(function (b) {
+      b.addEventListener('click', function () { decideDeposit(b.getAttribute('data-id'), b.getAttribute('data-act')); });
+    });
+    setErr('dep-err', '');
+  } catch (e) {
+    setErr('dep-err', 'Deposits load nahi ho sake: ' + e.message);
+    tb.innerHTML = '<tr><td colspan="9" class="empty">❌ Load nahi ho saka.</td></tr>';
+  }
+}
+
+async function decideDeposit(id, action) {
+  var label = action === 'approve' ? 'approve' : 'reject';
+  if (!confirm('Kya waqai is deposit ko ' + label + ' karna hai?')) return;
+  try {
+    var d = await api('/api/admin/deposit/' + id, 'POST', { action: action });
+    toast(d.msg || ('Deposit ' + label + ' ho gaya ✓'));
+    loadDeposits();
+  } catch (e) { toast(e.message, true); }
+}
+
+/* ================= ORDERS ================= */
+function renderOrdChips() {
+  var box = document.getElementById('ord-chips');
+  var opts = ['all'].concat(ORDER_STATUSES);
+  var labels = { all: 'Sab', pending: '⏳ Pending', in_progress: '🔄 In Progress', completed: '✅ Completed', partial: '⚠️ Partial', cancelled: '❌ Cancelled' };
+  box.innerHTML = '';
+  opts.forEach(function (o) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (o === ordFilter ? ' active' : '');
+    b.textContent = labels[o];
+    b.onclick = function () { ordFilter = o; renderOrdChips(); loadAdminOrders(); };
+    box.appendChild(b);
+  });
+}
+
+async function loadAdminOrders() {
+  var tb = document.getElementById('ord-body');
+  tb.innerHTML = '<tr><td colspan="10" class="empty">⏳ Load ho raha hai...</td></tr>';
+  try {
+    var d = await api('/api/admin/orders');
+    var list = (d.orders || []).filter(function (o) {
+      return ordFilter === 'all' || String(o.status) === ordFilter;
+    });
+    if (d.provider === false) toast('⚠️ Provider configure nahi — orders manual complete honge.', true);
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">📭 Koi order nahi.</td></tr>'; return; }
+    tb.innerHTML = list.map(function (o) {
+      var opts = ORDER_STATUSES.map(function (s) {
+        return '<option value="' + s + '"' + (o.status === s ? ' selected' : '') + '>' + s + '</option>';
+      }).join('');
+      return '<tr><td>#' + esc(o.id) + '</td>'
+        + '<td>' + esc(o.user_name) + '<div style="color:var(--muted);font-size:.78rem">' + esc(o.whatsapp) + '</div></td>'
+        + '<td>' + esc(o.service_name) + '</td>'
+        + '<td title="' + esc(o.link) + '">' + shortLink(o.link, 26) + '</td>'
+        + '<td>' + esc(o.quantity) + '</td>'
+        + '<td class="rate">' + fmt(o.charge) + '</td>'
+        + '<td class="mono">' + esc(o.provider_order_id || '—') + '</td>'
+        + '<td>' + statusBadge(o.status) + '</td>'
+        + '<td style="white-space:nowrap">' + fmtDate(o.created_at) + '</td>'
+        + '<td style="white-space:nowrap"><select class="inline" data-status-for="' + o.id + '">' + opts + '</select> '
+        + '<button class="btn btn-sm" data-upd="' + o.id + '">Save</button> '
+        + '<button class="btn btn-sm btn-outline" data-sync="' + o.id + '">🔄 Sync</button></td></tr>';
+    }).join('');
+    tb.querySelectorAll('button[data-upd]').forEach(function (b) {
+      b.addEventListener('click', function () { updateOrderStatus(b.getAttribute('data-upd')); });
+    });
+    tb.querySelectorAll('button[data-sync]').forEach(function (b) {
+      b.addEventListener('click', function () { syncOrder(b.getAttribute('data-sync')); });
+    });
+    setErr('ord-err', '');
+  } catch (e) {
+    setErr('ord-err', 'Orders load nahi ho sake: ' + e.message);
+    tb.innerHTML = '<tr><td colspan="10" class="empty">❌ Load nahi ho saka.</td></tr>';
+  }
+}
+
+async function updateOrderStatus(id) {
+  var sel = document.querySelector('select[data-status-for="' + id + '"]');
+  var status = sel ? sel.value : 'pending';
+  try {
+    var d = await api('/api/admin/order/' + id + '/status', 'POST', { status: status });
+    toast(d.msg || 'Status update ho gaya ✓');
+    loadAdminOrders();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function syncOrder(id) {
+  try {
+    var d = await api('/api/admin/order/' + id + '/sync', 'POST', {});
+    toast('🔄 Provider status: ' + (d.status || 'maloom nahi'));
+    loadAdminOrders();
+  } catch (e) { toast(e.message, true); }
+}
+
+/* ================= SERVICES ================= */
+async function loadServices() {
+  var tb = document.getElementById('svc-body');
+  try {
+    var d = await api('/api/admin/services');
+    ALL_SERVICES = d.services || [];
+    if (!ALL_SERVICES.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">📭 Koi service nahi. "Nayi Service" se add karein.</td></tr>'; return; }
+    tb.innerHTML = ALL_SERVICES.map(function (s) {
+      return '<tr><td>#' + esc(s.id) + '</td>'
+        + '<td><span class="plat">' + esc(s.platform || '') + '</span></td>'
+        + '<td><b>' + esc(s.name) + '</b>' + (s.description ? '<div style="color:var(--muted);font-size:.8rem">' + esc(s.description) + '</div>' : '') + '</td>'
+        + '<td class="rate">' + fmt(s.rate_per_1000) + '</td>'
+        + '<td>' + esc(s.min_qty) + '</td><td>' + esc(s.max_qty) + '</td>'
+        + '<td class="mono">' + esc(s.provider_service_id || '—') + '</td>'
+        + '<td>' + statusBadge(s.active ? 'active' : 'inactive') + '</td>'
+        + '<td style="white-space:nowrap">'
+        + '<button class="btn btn-sm btn-outline" data-edit="' + s.id + '">✏️ Edit</button> '
+        + '<button class="btn btn-sm" data-toggle="' + s.id + '">' + (s.active ? '⛔ Off' : '✅ On') + '</button> '
+        + '<button class="btn btn-sm btn-danger" data-del="' + s.id + '">🗑️</button></td></tr>';
+    }).join('');
+    tb.querySelectorAll('button[data-edit]').forEach(function (b) {
+      b.addEventListener('click', function () { openSvcModal(b.getAttribute('data-edit')); });
+    });
+    tb.querySelectorAll('button[data-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () { toggleService(b.getAttribute('data-toggle')); });
+    });
+    tb.querySelectorAll('button[data-del]').forEach(function (b) {
+      b.addEventListener('click', function () { deleteService(b.getAttribute('data-del')); });
+    });
+    setErr('svc-err', '');
+  } catch (e) {
+    setErr('svc-err', 'Services load nahi ho sakin: ' + e.message);
+  }
+}
+
+function openSvcModal(id) {
+  setErr('svc-form-err', '');
+  var s = id ? ALL_SERVICES.find(function (x) { return String(x.id) === String(id); }) : null;
+  document.getElementById('svc-modal-title').textContent = s ? '✏️ Service Edit Karein' : '➕ Nayi Service';
+  document.getElementById('svc-id').value = s ? s.id : '';
+  document.getElementById('svc-platform').value = (s && s.platform) || 'TikTok';
+  document.getElementById('svc-name').value = (s && s.name) || '';
+  document.getElementById('svc-rate').value = (s && s.rate_per_1000) || '';
+  document.getElementById('svc-min').value = (s && s.min_qty) || 100;
+  document.getElementById('svc-max').value = (s && s.max_qty) || 100000;
+  document.getElementById('svc-desc').value = (s && s.description) || '';
+  document.getElementById('svc-provider-id').value = (s && s.provider_service_id) || '';
+  document.getElementById('svc-active').value = s && !s.active ? '0' : '1';
+  document.getElementById('svc-modal').classList.add('open');
+}
+
+async function toggleService(id) {
+  var s = ALL_SERVICES.find(function (x) { return String(x.id) === String(id); });
+  if (!s) return;
+  try {
+    var d = await api('/api/admin/service', 'POST', {
+      id: s.id, platform: s.platform, name: s.name, rate_per_1000: s.rate_per_1000,
+      min_qty: s.min_qty, max_qty: s.max_qty, description: s.description || '',
+      provider_service_id: s.provider_service_id || '', active: s.active ? 0 : 1
+    });
+    toast(d.msg || 'Service update ho gayi ✓');
+    loadServices();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function deleteService(id) {
+  if (!confirm('Kya waqai is service ko delete karna hai?')) return;
+  try {
+    var d = await api('/api/admin/service/' + id, 'DELETE');
+    toast(d.msg || 'Service delete ho gayi ✓');
+    loadServices();
+  } catch (e) { toast(e.message, true); }
+}
+
+document.getElementById('svc-add').addEventListener('click', function () { openSvcModal(null); });
+document.getElementById('svc-cancel').addEventListener('click', function () {
+  document.getElementById('svc-modal').classList.remove('open');
+});
+document.getElementById('svc-save').addEventListener('click', async function () {
+  setErr('svc-form-err', '');
+  var payload = {
+    platform: document.getElementById('svc-platform').value,
+    name: document.getElementById('svc-name').value.trim(),
+    rate_per_1000: parseFloat(document.getElementById('svc-rate').value),
+    min_qty: parseInt(document.getElementById('svc-min').value, 10),
+    max_qty: parseInt(document.getElementById('svc-max').value, 10),
+    description: document.getElementById('svc-desc').value.trim(),
+    provider_service_id: document.getElementById('svc-provider-id').value.trim(),
+    active: document.getElementById('svc-active').value === '1' ? 1 : 0
+  };
+  var sid = document.getElementById('svc-id').value;
+  if (sid) payload.id = sid;
+  if (!payload.name) { setErr('svc-form-err', '❌ Service ka naam likhein.'); return; }
+  if (!(payload.rate_per_1000 >= 0)) { setErr('svc-form-err', '❌ Durust rate dalein.'); return; }
+  var btn = this; btn.disabled = true; btn.textContent = '⏳ Save ho raha hai...';
+  try {
+    var d = await api('/api/admin/service', 'POST', payload);
+    toast(d.msg || 'Service save ho gayi ✓');
+    document.getElementById('svc-modal').classList.remove('open');
+    loadServices();
+  } catch (e) { setErr('svc-form-err', e.message); }
+  btn.disabled = false; btn.textContent = '💾 Save';
+});
+
+/* ================= SETTINGS ================= */
+var SETTING_KEYS = ['panel_name', 'currency', 'jazzcash_number', 'jazzcash_name', 'easypaisa_number', 'easypaisa_name', 'bank_detail', 'support_whatsapp'];
+
+async function loadSettings() {
+  try {
+    var d = await api('/api/admin/settings');
+    var s = d.settings || {};
+    SETTING_KEYS.forEach(function (k) {
+      var el = document.getElementById('set-' + k);
+      if (el) el.value = s[k] || '';
+    });
+    document.getElementById('st-provider').innerHTML = d.provider ? statusBadge('active') : statusBadge('inactive');
+    document.getElementById('st-whatsapp').innerHTML = d.whatsapp ? statusBadge('active') : statusBadge('inactive');
+    setErr('set-err', '');
+  } catch (e) {
+    setErr('set-err', 'Settings load nahi ho sakin: ' + e.message);
+  }
+}
+
+document.getElementById('set-save').addEventListener('click', async function () {
+  setErr('set-err', '');
+  var ok = document.getElementById('set-ok'); ok.style.display = 'none';
+  var payload = {};
+  SETTING_KEYS.forEach(function (k) {
+    var el = document.getElementById('set-' + k);
+    payload[k] = el ? el.value.trim() : '';
+  });
+  var btn = this; btn.disabled = true; btn.textContent = '⏳ Save ho raha hai...';
+  try {
+    var d = await api('/api/admin/settings', 'POST', payload);
+    ok.style.display = 'block';
+    ok.textContent = '✅ ' + (d.msg || 'Settings save ho gayin.');
+  } catch (e) { setErr('set-err', e.message); }
+  btn.disabled = false; btn.textContent = '💾 Save Settings';
+});
+
+/* ================= PROVIDER ================= */
+function renderProvTable() {
+  var tb = document.getElementById('prov-body');
+  var q = document.getElementById('prov-search').value.trim().toLowerCase();
+  var list = PROV_SERVICES.filter(function (s) {
+    return !q || String(s.name || '').toLowerCase().indexOf(q) !== -1;
+  });
+  document.getElementById('prov-count').textContent = PROV_SERVICES.length + ' services';
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6" class="empty">📭 Koi service nahi mili.</td></tr>'; return; }
+  tb.innerHTML = list.map(function (s, i) {
+    var sid = s.service !== undefined ? s.service : s.id;
+    return '<tr><td class="mono"><b>' + esc(sid) + '</b></td>'
+      + '<td>' + esc(s.name || '—') + '</td>'
+      + '<td>' + esc(s.rate !== undefined ? s.rate : '—') + '</td>'
+      + '<td>' + esc(s.min !== undefined ? s.min : '—') + '</td>'
+      + '<td>' + esc(s.max !== undefined ? s.max : '—') + '</td>'
+      + '<td><button class="btn btn-sm btn-outline" data-cpid="' + i + '">📋 ID Copy</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('button[data-cpid]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var s = list[+b.getAttribute('data-cpid')];
+      copyText(String(s.service !== undefined ? s.service : s.id));
+    });
+  });
+}
+
+document.getElementById('prov-sync').addEventListener('click', async function () {
+  setErr('prov-err', '');
+  var ok = document.getElementById('prov-ok'); ok.style.display = 'none';
+  var btn = this; btn.disabled = true; btn.textContent = '⏳ Sync ho raha hai...';
+  try {
+    var d = await api('/api/admin/sync-services', 'POST', {});
+    PROV_SERVICES = d.services || [];
+    ok.style.display = 'block';
+    ok.textContent = '✅ ' + (d.msg || (d.count + ' services mili.'));
+    document.getElementById('prov-list-card').style.display = PROV_SERVICES.length ? 'block' : 'none';
+    renderProvTable();
+  } catch (e) { setErr('prov-err', e.message); }
+  btn.disabled = false; btn.textContent = '🔄 Provider se Services Sync Karein';
+});
+
+document.getElementById('prov-balance').addEventListener('click', async function () {
+  var box = document.getElementById('prov-balance-box');
+  box.innerHTML = '<p style="color:var(--muted)">⏳ Balance check ho raha hai...</p>';
+  try {
+    var d = await api('/api/admin/provider-balance');
+    box.innerHTML = '<div class="price-box"><span>Provider Balance</span><span class="amt">' + esc(d.balance) + ' ' + esc(d.currency || '') + '</span></div>';
+  } catch (e) { box.innerHTML = '<div class="err" style="display:block">' + esc(e.message) + '</div>'; }
+});
+
+document.getElementById('prov-search').addEventListener('input', renderProvTable);
+
+/* ================= INIT ================= */
+document.getElementById('btn-logout').addEventListener('click', logout);
+
+var switchTab = initTabs('#admin-tabs .tab', function (name) {
+  if (name === 'deposits') loadDeposits();
+  if (name === 'orders') loadAdminOrders();
+  if (name === 'services') loadServices();
+  if (name === 'settings') loadSettings();
+});
+
+(async function init() {
+  ADMIN = await requireLogin(true);
+  if (!ADMIN) return;
+  document.getElementById('a-name').textContent = '👤 ' + ADMIN.name;
+  renderDepChips();
+  renderOrdChips();
+  loadDeposits();
+})();
+</script>
+</body>
+</html>
