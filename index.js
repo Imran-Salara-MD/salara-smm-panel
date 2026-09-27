@@ -55,6 +55,10 @@ app.post('/api/register', (req, res) => {
     return res.json({ ok: false, error: 'Is number se account pehle se hai — login karein' });
   const isAdmin = store.countUsers() === 0; // pehla user = admin
   const id = store.createUser(name.trim(), waNum, auth.hashPassword(password), isAdmin);
+  if (!isAdmin) {
+    // naye customer ki detail owner ko WhatsApp par (fire-and-forget)
+    wa.notify(ADMIN_WA(), `👤 *New Signup — ${PANEL()}*\n📝 Naam: ${name.trim()}\n📱 WhatsApp: ${waNum}\n🆔 User ID: ${id}\n🕐 ${new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' })}`);
+  }
   res.json({ ok: true, token: auth.signToken(id), isAdmin });
 });
 app.post('/api/login', (req, res) => {
