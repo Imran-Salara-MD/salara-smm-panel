@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Login / Register — Salara SMM Panel</title>
 <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
 <nav class="nav">
   <div class="nav-inner">
-    <a class="logo" href="index.html">🟢 <b>Salara</b> SMM Panel</a>
+    <a class="logo" href="index.html"><span class="logo-mark">S</span><span><b>Salara</b> SMM Panel</span></a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
     <div class="nav-links" id="nav-links">
       <a href="index.html#rates">Rate List</a>
@@ -20,7 +24,12 @@
 </nav>
 
 <div class="wrap">
-  <div class="auth-box">
+  <div class="auth-box fade-up d2">
+    <div class="auth-logo fade-up d1"><span class="logo-mark">S</span></div>
+    <div class="auth-head">
+      <h1>Welcome back</h1>
+      <p>Sign in to manage your orders</p>
+    </div>
     <div class="card">
       <div class="auth-tabs">
         <button id="tab-login" class="active">Login</button>
